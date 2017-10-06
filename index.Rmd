@@ -1,0 +1,56 @@
+---
+title: "Baseball Salary Statistics"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(Lahman)
+library(sqldf)
+library(ggplot2)
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Salary Histogram
+
+```{r}
+query<-"SELECT salary FROM Salaries"
+result<-sqldf(query)
+
+ggplot()+
+  geom_histogram(data=result, aes(x=salary))
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Average Salaries Time Series
+
+```{r}
+query<-"SELECT yearID,avg(salary) AS averagesalary
+FROM Salaries
+GROUP BY yearID"
+result<-sqldf(query)
+
+ggplot()+
+  geom_line(data=result,aes(x=yearID,y=averagesalary))
+```
+
+### Salaries Versus Homeruns Scatterplot
+
+```{r}
+query<-"SELECT salary,HR
+FROM Salaries INNER JOIN Batting
+ON Salaries.playerID=Batting.playerID
+WHERE HR>=10"
+result<-sqldf(query)
+
+ggplot()+
+  geom_point(data=result,aes(x=salary,y=HR))
+```
+
